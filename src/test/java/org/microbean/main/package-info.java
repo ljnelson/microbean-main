@@ -16,12 +16,13 @@
  */
 
 /**
- * Provides classes and interfaces related to starting up {@linkplain
- * javax.enterprise.inject.se.SeContainer CDI containers}.
+ * Provides classes and interfaces related to the testing of the
+ * starting up of {@linkplain javax.enterprise.inject.se.SeContainer
+ * CDI containers}.
  *
  * @author <a href="http://about.me/lairdnelson"
  * target="_parent">Laird Nelson</a>
  *
- * @see org.microbean.main.Main
+ * @see org.microbean.main.TestMain
  */
 package org.microbean.main;

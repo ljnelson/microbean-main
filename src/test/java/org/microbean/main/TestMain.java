@@ -16,23 +16,92 @@
  */
 package org.microbean.main;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.util.Arrays;
 
-import javax.enterprise.inject.se.SeContainer;
-import javax.enterprise.inject.se.SeContainerInitializer;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Initialized;
+
+import javax.enterprise.event.Observes;
+
+import javax.enterprise.inject.se.SeContainer; // for javadoc only
+
+import javax.inject.Named;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+/**
+ * A <a href="http://junit.org/junit4/">JUnit</a> test class that
+ * exercises the {@link Main} class.
+ *
+ * @author <a href="http://about.me/lairdnelson"
+ * target="_parent">Laird Nelson</a>
+ *
+ * @see Main
+ */
 @ApplicationScoped
 public class TestMain {
 
+  
+  /*
+   * Static fields.
+   */
+
+  
+  /**
+   * The number of instances of this class that have been created (in
+   * the context of JUnit execution; any other usage is undefined).
+   */
+  private static int instanceCount;
+
+  
+  /*
+   * Constructors.
+   */
+  
+
+  /**
+   * Creates a new {@link TestMain}.
+   *
+   * <p>This constructor will be called by the JUnit framework as well
+   * as by an {@link SeContainer} implementation.</p>
+   */
   public TestMain() {
     super();
+    instanceCount++;
   }
 
+
+  /*
+   * Instance methods.
+   */
+
+
+  /**
+   * Asserts that command line arguments have been properly injected.
+   *
+   * <p>This method is called by the {@link SeContainer} as it comes
+   * up.</p>
+   *
+   * @param event the event representing the CDI container startup;
+   * ignored
+   *
+   * @param args the command line arguments
+   */
+  private final void onStartup(@Observes @Initialized(ApplicationScoped.class) final Object event, @Named("commandLineArguments") final String[] args) {
+    assertTrue(Arrays.equals(new String[] { "a", "b" }, args));
+  }
+
+  /**
+   * Exercises the {@link Main#main(String[])} method.
+   */
   @Test
   public void testContainerStartup() {
-    Main.main(null);
+    final int oldInstanceCount = instanceCount;
+    Main.main(new String[] { "a", "b" });
+    assertEquals(oldInstanceCount + 1, instanceCount);
   }
   
 }

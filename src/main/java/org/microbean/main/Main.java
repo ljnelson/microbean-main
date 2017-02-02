@@ -16,21 +16,56 @@
  */
 package org.microbean.main;
 
+import javax.enterprise.inject.Produces;
+
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * A class whose {@linkplain #main(String[]) <code>main</code> method}
  * {@linkplain SeContainerInitializer#initialize() initializes} a new
  * {@link SeContainer}.
  *
+ * <h2>Thread Safety</h2>
+ *
+ * <p>This class is not safe for concurrent use by multiple
+ * threads.</p>
+ *
  * @author <a href="http://about.me/lairdnelson"
  * target="_parent">Laird Nelson</a>
  *
  * @see SeContainerInitializer#initialize()
  */
+@Singleton
 public class Main {
 
+
+  /*
+   * Static fields.
+   */
+
+  
+  /**
+   * Any command line arguments installed by the last invocation of
+   * the {@link #main(String[])} method.
+   *
+   * <p>This field may be {@code null}.</p>
+   *
+   * @see #getCommandLineArguments()
+   *
+   * @see #main(String[])
+   */
+  private static String[] commandLineArguments;
+
+
+  /*
+   * Constructors.
+   */
+
+  
   /**
    * Creates a new {@link Main}.
    */
@@ -38,10 +73,46 @@ public class Main {
     super();
   }
 
+
+  /*
+   * Static methods.
+   */
+
+  
+  /**
+   * A <a
+   * href="http://docs.jboss.org/cdi/spec/2.0.Beta1/cdi-spec.html#producer_method">producer
+   * method</a> that returns the command line arguments stored in the
+   * {@link #commandLineArguments} field by the {@link
+   * #main(String[])} method.
+   *
+   * <p>This method may return {@code null}.</p>
+   *
+   * @return a {@link String} array of command line arguments, or
+   * {@code null}
+   *
+   * @see #commandLineArguments
+   *
+   * @see #main(String[])
+   */
+  @Produces
+  @Named("commandLineArguments")
+  @Singleton
+  private static final String[] getCommandLineArguments() {
+    return commandLineArguments;
+  }
+
   /**
    * {@linkplain SeContainerInitializer#initialize() Initializes} a
    * new {@link SeContainer} and then {@linkplain SeContainer#close()
    * closes} it.
+   *
+   * <p>This method has a deliberate side effect of making the {@code
+   * args} parameter value available in the CDI container in {@link
+   * Singleton} scope with a qualifier of {@link
+   * Named @Named("commandLineArguments")}.  It also causes an
+   * instance of this class to be created by the CDI container in
+   * {@link Singleton} scope.</p>
    *
    * @param args command-line arguments; may be {@code null}
    *
@@ -51,12 +122,14 @@ public class Main {
    *
    * @see SeContainer#close()
    */
-  public static final void main(final String[] args) {    
+  public static final void main(final String[] args) {
+    commandLineArguments = args;
     final SeContainerInitializer containerInitializer = SeContainerInitializer.newInstance();
     assert containerInitializer != null;
+    containerInitializer.addBeanClasses(Main.class);
     try (final SeContainer container = containerInitializer.initialize()) {
       assert container != null;
-
+      assert container.select(Main.class).get() != null;
     }
   }
   
