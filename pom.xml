@@ -50,6 +50,13 @@
         <scope>import</scope>
       </dependency>
 
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.7.21</version>
+        <type>jar</type>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -85,6 +92,13 @@
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se-core</artifactId>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
       <type>jar</type>
       <scope>test</scope>
     </dependency>
