@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <Match>
+    <Class name="org.microbean.main.Main"/>
+    <Method name="main"/>
+    <Bug pattern="EI_EXPOSE_STATIC_REP2"/>
+  </Match>
+</FindBugsFilter>
