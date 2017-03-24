@@ -24,12 +24,14 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 
 import javax.enterprise.inject.se.SeContainer; // for javadoc only
+import javax.enterprise.inject.se.SeContainerInitializer;
 
 import javax.inject.Named;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -90,7 +92,8 @@ public class TestMain {
    *
    * @param args the command line arguments
    */
-  private final void onStartup(@Observes @Initialized(ApplicationScoped.class) final Object event, @Named("commandLineArguments") final String[] args) {
+  private final void onStartup(@Observes @Initialized(ApplicationScoped.class) final Object event,
+                               @Named("commandLineArguments") final String[] args) {
     assertTrue(Arrays.equals(new String[] { "a", "b" }, args));
   }
 
@@ -100,7 +103,11 @@ public class TestMain {
   @Test
   public void testContainerStartup() {
     final int oldInstanceCount = instanceCount;
-    Main.main(new String[] { "a", "b" });
+    final SeContainerInitializer containerInitializer = SeContainerInitializer.newInstance();
+    assertNotNull(containerInitializer);
+    containerInitializer.disableDiscovery();
+    containerInitializer.addBeanClasses(this.getClass());
+    Main.main(containerInitializer, new String[] { "a", "b" });
     assertEquals(oldInstanceCount + 1, instanceCount);
   }
   

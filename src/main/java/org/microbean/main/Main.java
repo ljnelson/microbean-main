@@ -16,6 +16,8 @@
  */
 package org.microbean.main;
 
+import javax.enterprise.context.Dependent;
+
 import javax.enterprise.inject.Produces;
 
 import javax.enterprise.inject.se.SeContainer;
@@ -86,9 +88,9 @@ public class Main {
    * {@link #commandLineArguments} field by the {@link
    * #main(String[])} method.
    *
-   * <p>This method may return {@code null}.</p>
+   * <p>This method never returns {@code null}.</p>
    *
-   * @return a {@link String} array of command line arguments, or
+   * @return a {@link String} array of command line arguments; never
    * {@code null}
    *
    * @see #commandLineArguments
@@ -107,12 +109,35 @@ public class Main {
    * new {@link SeContainer} and then {@linkplain SeContainer#close()
    * closes} it.
    *
+   * <p>This method calls the {@link #main(SeContainerInitializer,
+   * String[])} method with the return value of the {@link
+   * SeContainerInitializer#newInstance()} method and the supplied
+   * {@code args} parameter value.</p>
+   *
+   * @param args command-line arguments; may be {@code null}
+   *
+   * @see #main(SeContainerInitializer, String[])
+   */
+  public static final void main(final String[] args) {
+    main(SeContainerInitializer.newInstance(), args);
+  }
+  
+  /**
+   * {@linkplain SeContainerInitializer#initialize() Initializes} a
+   * new {@link SeContainer} and then {@linkplain SeContainer#close()
+   * closes} it.
+   *
    * <p>This method has a deliberate side effect of making the {@code
    * args} parameter value available in the CDI container in {@link
    * Singleton} scope with a qualifier of {@link
    * Named @Named("commandLineArguments")}.  It also causes an
    * instance of this class to be created by the CDI container in
    * {@link Singleton} scope.</p>
+   *
+   * @param containerInitializer the {@link SeContainerInitializer} to
+   * use to initialize the {@link SeContainer}; may be {@code null} in
+   * which case the return value of {@link
+   * SeContainerInitializer#newInstance()} will be used instead
    *
    * @param args command-line arguments; may be {@code null}
    *
@@ -122,9 +147,11 @@ public class Main {
    *
    * @see SeContainer#close()
    */
-  public static final void main(final String[] args) {
-    commandLineArguments = args;
-    final SeContainerInitializer containerInitializer = SeContainerInitializer.newInstance();
+  public static final void main(SeContainerInitializer containerInitializer, final String[] args) {
+    commandLineArguments = args == null ? new String[0] : args;
+    if (containerInitializer == null) {
+      containerInitializer = SeContainerInitializer.newInstance();
+    }
     assert containerInitializer != null;
     containerInitializer.addBeanClasses(Main.class);
     try (final SeContainer container = containerInitializer.initialize()) {
