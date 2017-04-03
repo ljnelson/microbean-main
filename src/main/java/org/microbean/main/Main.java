@@ -16,6 +16,8 @@
  */
 package org.microbean.main;
 
+import java.util.function.Consumer;
+
 import javax.enterprise.context.Dependent;
 
 import javax.enterprise.inject.Produces;
@@ -36,8 +38,10 @@ import javax.inject.Singleton;
  * <p>This class is not safe for concurrent use by multiple
  * threads.</p>
  *
- * @author <a href="http://about.me/lairdnelson"
+ * @author <a href="https://about.me/lairdnelson"
  * target="_parent">Laird Nelson</a>
+ *
+ * @see #main(String[])
  *
  * @see SeContainerInitializer#initialize()
  */
@@ -52,13 +56,14 @@ public class Main {
   
   /**
    * Any command line arguments installed by the last invocation of
-   * the {@link #main(String[])} method.
+   * the {@link #main(SeContainerInitializer, Consumer, String[])}
+   * method.
    *
    * <p>This field may be {@code null}.</p>
    *
    * @see #getCommandLineArguments()
    *
-   * @see #main(String[])
+   * @see #main(SeContainerInitializer, Consumer, String[])
    */
   private static String[] commandLineArguments;
 
@@ -71,7 +76,7 @@ public class Main {
   /**
    * Creates a new {@link Main}.
    */
-  public Main() {
+  protected Main() {
     super();
   }
 
@@ -83,7 +88,7 @@ public class Main {
   
   /**
    * A <a
-   * href="http://docs.jboss.org/cdi/spec/2.0.Beta1/cdi-spec.html#producer_method">producer
+   * href="http://docs.jboss.org/cdi/spec/2.0-PFD2/cdi-spec.html#producer_method">producer
    * method</a> that returns the command line arguments stored in the
    * {@link #commandLineArguments} field by the {@link
    * #main(String[])} method.
@@ -95,7 +100,7 @@ public class Main {
    *
    * @see #commandLineArguments
    *
-   * @see #main(String[])
+   * @see #main(SeContainerInitializer, Consumer, String[])
    */
   @Produces
   @Named("commandLineArguments")
@@ -110,22 +115,47 @@ public class Main {
    * closes} it.
    *
    * <p>This method calls the {@link #main(SeContainerInitializer,
-   * String[])} method with the return value of the {@link
-   * SeContainerInitializer#newInstance()} method and the supplied
-   * {@code args} parameter value.</p>
+   * Consumer, String[])} method with the return value of the {@link
+   * SeContainerInitializer#newInstance()} method, {@code null}, and
+   * the supplied {@code args} parameter value.</p>
    *
    * @param args command-line arguments; may be {@code null}
    *
-   * @see #main(SeContainerInitializer, String[])
+   * @see #main(SeContainerInitializer, Consumer, String[])
    */
   public static final void main(final String[] args) {
-    main(SeContainerInitializer.newInstance(), args);
+    main(SeContainerInitializer.newInstance(), null, args);
   }
   
   /**
    * {@linkplain SeContainerInitializer#initialize() Initializes} a
    * new {@link SeContainer} and then {@linkplain SeContainer#close()
    * closes} it.
+   *
+   * <p>This method calls the {@link #main(SeContainerInitializer,
+   * Consumer, String[])} method with the supplied {@code
+   * containerInitializer} parameter value, {@code null}, and the
+   * supplied {@code args} parameter value.</p>
+   *
+   * @param containerInitializer the {@link SeContainerInitializer} to
+   * use to initialize the {@link SeContainer}; may be {@code null} in
+   * which case the return value of {@link
+   * SeContainerInitializer#newInstance()} will be used instead
+   *
+   * @param args command-line arguments; may be {@code null}
+   *
+   * @see #main(SeContainerInitializer, Consumer, String[])
+   */
+  public static final void main(SeContainerInitializer containerInitializer, final String[] args) {
+    main(containerInitializer, null, args);
+  }
+
+  /**
+   * {@linkplain SeContainerInitializer#initialize() Initializes} a
+   * new {@link SeContainer}, {@linkplain Consumer#accept(Object)
+   * calls the supplied <code>consumer</code> parameter value with it}
+   * (if the supplied {@code consumer} parameter value is non-{@code
+   * null}), and then {@linkplain SeContainer#close() closes} it.
    *
    * <p>This method has a deliberate side effect of making the {@code
    * args} parameter value available in the CDI container in {@link
@@ -137,7 +167,14 @@ public class Main {
    * @param containerInitializer the {@link SeContainerInitializer} to
    * use to initialize the {@link SeContainer}; may be {@code null} in
    * which case the return value of {@link
-   * SeContainerInitializer#newInstance()} will be used instead
+   * SeContainerInitializer#newInstance()} will be used instead.  This
+   * {@link SeContainerInitializer} instance will have its {@link
+   * SeContainerInitializer#addBeanClasses(Class...)} method called
+   * with {@link Main Main.class} as its only argument.
+   *
+   * @param consumer a {@link Consumer} whose {@link
+   * Consumer#accept(Object)} method will be called with an {@link
+   * SeContainer}; may be {@code null}; rarely needed
    *
    * @param args command-line arguments; may be {@code null}
    *
@@ -147,16 +184,24 @@ public class Main {
    *
    * @see SeContainer#close()
    */
-  public static final void main(SeContainerInitializer containerInitializer, final String[] args) {
+  public static final void main(SeContainerInitializer containerInitializer, final Consumer<? super SeContainer> consumer, final String[] args) {
     commandLineArguments = args == null ? new String[0] : args;
     if (containerInitializer == null) {
       containerInitializer = SeContainerInitializer.newInstance();
     }
     assert containerInitializer != null;
     containerInitializer.addBeanClasses(Main.class);
-    try (final SeContainer container = containerInitializer.initialize()) {
-      assert container != null;
+    final SeContainer container = containerInitializer.initialize();
+    assert container != null;
+    try {
       assert container.select(Main.class).get() != null;
+      if (consumer != null) {
+        consumer.accept(container);
+      }
+    } finally {
+      if (container.isRunning()) {
+        container.close();
+      }
     }
   }
   

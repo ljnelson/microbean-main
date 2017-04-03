@@ -19,7 +19,7 @@
  * Provides classes and interfaces related to starting up {@linkplain
  * javax.enterprise.inject.se.SeContainer CDI containers}.
  *
- * @author <a href="http://about.me/lairdnelson"
+ * @author <a href="https://about.me/lairdnelson"
  * target="_parent">Laird Nelson</a>
  *
  * @see org.microbean.main.Main
