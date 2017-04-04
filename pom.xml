@@ -7,7 +7,7 @@
   </prerequisites>
 
   <artifactId>microbean-main</artifactId>
-  <version>6-SNAPSHOT</version>
+  <version>6</version>
 
   <parent>
     <groupId>org.microbean</groupId>
@@ -23,7 +23,7 @@
     <connection>scm:git:git@github.com:ljnelson/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:ljnelson/${project.artifactId}.git</developerConnection>
     <url>https://github.com/ljnelson/${project.artifactId}/</url>
-    <tag>HEAD</tag>
+    <tag>microbean-main-6</tag>
   </scm>
 
   <dependencyManagement>
