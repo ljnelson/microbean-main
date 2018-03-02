@@ -1,9 +1,1 @@
-# ${project.name}
-
-The ${project.name} project starts and closes a [CDI container][0].
-
-Please see the [CDI specification][1] for more information on what is
-possible as a result of this.
-
-[0]: http://docs.jboss.org/cdi/api/2.0-PFD/javax/enterprise/inject/se/SeContainer.html
-[1]: http://docs.jboss.org/cdi/spec/2.0-PRD/cdi-spec.html
+#include("../../../README.md")
