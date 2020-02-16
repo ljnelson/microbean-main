@@ -1,6 +1,6 @@
 /* -*- mode: Java; c-basic-offset: 2; indent-tabs-mode: nil; coding: utf-8-unix -*-
  *
- * Copyright © 2017 MicroBean.
+ * Copyright © 2017–2020 microBean™.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,17 +33,17 @@ import javax.inject.Singleton;
  * {@linkplain SeContainerInitializer#initialize() initializes} a new
  * {@link SeContainer}.
  *
- * <h2>Thread Safety</h2>
- *
- * <p>This class is not safe for concurrent use by multiple
- * threads.</p>
- *
  * @author <a href="https://about.me/lairdnelson"
  * target="_parent">Laird Nelson</a>
  *
  * @see #main(String[])
  *
+ * @see #main(SeContainerInitializer, Consumer, String[])
+ *
  * @see SeContainerInitializer#initialize()
+ *
+ * @threadsafety Instances of this class are not safe for concurrent
+ * use by multiple threads.
  */
 @Singleton
 public class Main {
@@ -59,11 +59,11 @@ public class Main {
    * the {@link #main(SeContainerInitializer, Consumer, String[])}
    * method.
    *
-   * <p>This field may be {@code null}.</p>
-   *
    * @see #getCommandLineArguments()
    *
    * @see #main(SeContainerInitializer, Consumer, String[])
+   *
+   * @nullability This field may be {@code null}.
    */
   private static String[] commandLineArguments;
 
@@ -88,12 +88,10 @@ public class Main {
   
   /**
    * A <a
-   * href="http://docs.jboss.org/cdi/spec/2.0-PFD2/cdi-spec.html#producer_method">producer
+   * href="https://jakarta.ee/specifications/cdi/2.0/cdi-spec-2.0.html#producer_method">producer
    * method</a> that returns the command line arguments stored in the
    * {@link #commandLineArguments} field by the {@link
    * #main(String[])} method.
-   *
-   * <p>This method never returns {@code null}.</p>
    *
    * @return a {@link String} array of command line arguments; never
    * {@code null}
@@ -101,6 +99,11 @@ public class Main {
    * @see #commandLineArguments
    *
    * @see #main(SeContainerInitializer, Consumer, String[])
+   *
+   * @nullability This method never returns {@code null}.
+   *
+   * @threadsafety This method is safe for concurrent use by multiple
+   * threads.
    */
   @Produces
   @Named("commandLineArguments")
@@ -122,6 +125,9 @@ public class Main {
    * @param args command-line arguments; may be {@code null}
    *
    * @see #main(SeContainerInitializer, Consumer, String[])
+   *
+   * @threadsafety This method is not safe for concurrent use by
+   * multiple threads.
    */
   public static final void main(final String[] args) {
     main(SeContainerInitializer.newInstance(), null, args);
@@ -145,6 +151,9 @@ public class Main {
    * @param args command-line arguments; may be {@code null}
    *
    * @see #main(SeContainerInitializer, Consumer, String[])
+   *
+   * @threadsafety This method is not safe for concurrent use by
+   * multiple threads.
    */
   public static final void main(SeContainerInitializer containerInitializer, final String[] args) {
     main(containerInitializer, null, args);
@@ -183,6 +192,9 @@ public class Main {
    * @see SeContainerInitializer#initialize()
    *
    * @see SeContainer#close()
+   *
+   * @threadsafety This method is not safe for concurrent use by
+   * multiple threads.
    */
   public static final void main(SeContainerInitializer containerInitializer, final Consumer<? super SeContainer> consumer, final String[] args) {
     commandLineArguments = args == null ? new String[0] : args;

@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.microbean</groupId>
     <artifactId>microbean-pluginmanagement-pom</artifactId>
-    <version>11</version>
+    <version>17</version>
     <relativePath />
   </parent>
 
@@ -26,19 +26,30 @@
 
   <dependencyManagement>
     <dependencies>
-      
+
+
+      <!-- Imports. -->
+
+
       <dependency>
-        <groupId>jakarta.enterprise</groupId>
-        <artifactId>jakarta.enterprise.cdi-api</artifactId>
-        <version>2.0.2</version>
-        <type>jar</type>
-        <exclusions>
-          <exclusion>
-            <groupId>jakarta.ejb</groupId>
-            <artifactId>jakarta.ejb-api</artifactId>
-          </exclusion>
-        </exclusions>
+        <groupId>org.jboss.weld</groupId>
+        <artifactId>weld-core-bom</artifactId>
+        <version>3.1.3.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
+
+      <dependency>
+        <groupId>org.microbean</groupId>
+        <artifactId>microbean-base-specification</artifactId>
+        <version>0.6.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+
+      <!-- Normal dependencies. -->
+
 
       <dependency>
         <groupId>org.jboss</groupId>
@@ -47,55 +58,37 @@
         <type>jar</type>
       </dependency>
 
-      <dependency>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-core-bom</artifactId>
-        <version>3.1.2.Final</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>1.8.0-beta4</version>
-        <type>jar</type>
-      </dependency>
 
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
 
-    
+
     <!-- Provided-scoped dependencies. -->
 
-    
+
     <dependency>
-      <groupId>jakarta.enterprise</groupId>
-      <artifactId>jakarta.enterprise.cdi-api</artifactId>
-      <type>jar</type>
+      <groupId>org.microbean</groupId>
+      <artifactId>microbean-base-specification</artifactId>
+      <type>pom</type>
       <scope>provided</scope>
     </dependency>
 
-    
-    <!-- Runtime-scoped dependencies. -->
 
-    
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jandex</artifactId>
-      <type>jar</type>
-      <optional>true</optional>
-    </dependency>
-
-    
     <!-- Test-scoped dependencies. -->
 
-    
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jandex</artifactId>
       <type>jar</type>
       <scope>test</scope>
     </dependency>
@@ -107,27 +100,9 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-    
   </dependencies>
 
   <build>
-    <pluginManagement>
-      <plugins>
-
-        <plugin>
-          <groupId>org.jboss.jandex</groupId>
-          <artifactId>jandex-maven-plugin</artifactId>
-          <version>1.0.6</version>
-        </plugin>
-        
-      </plugins>
-    </pluginManagement>
     <plugins>
 
       <plugin>
@@ -145,7 +120,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>org.jboss.jandex</groupId>
         <artifactId>jandex-maven-plugin</artifactId>
@@ -157,16 +132,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <systemPropertyVariables>
-            <org.jboss.logging.provider>${org.jboss.logging.provider}</org.jboss.logging.provider>
-            <org.slf4j.simpleLogger.log.org.jboss.weld>${org.slf4j.simpleLogger.log.org.jboss.weld}</org.slf4j.simpleLogger.log.org.jboss.weld>
-          </systemPropertyVariables>
-        </configuration>
       </plugin>
 
       <plugin>
@@ -183,12 +148,8 @@
     <links>https://jakarta.ee/specifications/dependency-injection/1.0/apidocs/,https://jakarta.ee/specifications/cdi/2.0/apidocs/</links>
     <stylesheetFile>css/stylesheet.css</stylesheetFile>
 
-    <!-- Weld logging; see https://docs.jboss.org/weld/reference/latest/en-US/html/logging.html#_weld_se -->
-    <org.jboss.logging.provider>slf4j</org.jboss.logging.provider>
-    <org.slf4j.simpleLogger.log.org.jboss.weld>info</org.slf4j.simpleLogger.log.org.jboss.weld>
-    
   </properties>
-  
+
   <reporting>
     <plugins>
       <plugin>
@@ -197,12 +158,11 @@
           <reportSet>
             <reports>
               <report>javadoc-no-fork</report>
-              <report>test-javadoc-no-fork</report>
             </reports>
           </reportSet>
         </reportSets>
       </plugin>
     </plugins>
   </reporting>
-  
+
 </project>
